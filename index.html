@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 07 · Tablas & Tipos de Datos · UPLA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf0f5;
+  --bg2:#f8e6ef;
+  --card:#ffffff;
+  --card2:#fdf5f8;
+  --n1:#d4547a;   /* rosa frambuesa */
+  --n2:#9b2c52;   /* magenta oscuro */
+  --n3:#2ec4a0;   /* verde esmeralda */
+  --n4:#f59e3a;   /* ámbar */
+  --n5:#6c63d4;   /* índigo */
+  --n6:#f0c040;   /* dorado */
+  --text:#2a0f1a;
+  --text2:#6a3050;
+  --muted:#c090a8;
+  --border:rgba(212,84,122,.18);
+  --border2:rgba(212,84,122,.10);
+  --sh:0 4px 24px rgba(212,84,122,.10);
+  --sh2:0 8px 32px rgba(212,84,122,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
+
+.cur{width:28px;height:36px;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;
+  transition:transform .12s;filter:drop-shadow(0 0 5px rgba(212,84,122,.7))}
+.cring{width:36px;height:36px;border:1.5px solid rgba(212,84,122,.4);border-radius:50%;
+  position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:all .18s;opacity:.5}
+
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.gridbg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle,rgba(212,84,122,.07) 1.2px,transparent 1.2px);
+  background-size:38px 38px}
+
+.blob{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:drift 16s ease-in-out infinite alternate}
+.b1{width:480px;height:480px;background:rgba(212,84,122,.12);top:-120px;right:-80px}
+.b2{width:380px;height:380px;background:rgba(46,196,160,.1);bottom:-60px;left:-80px;animation-delay:-7s}
+.b3{width:260px;height:260px;background:rgba(108,99,212,.08);top:45%;left:40%;animation-delay:-3s}
+@keyframes drift{from{transform:translate(0,0)scale(1)}to{transform:translate(18px,12px)scale(1.06)}}
+
+.corner{position:fixed;width:44px;height:44px;pointer-events:none;z-index:100}
+.corner.tl{top:14px;left:14px;border-top:2px solid rgba(212,84,122,.35);border-left:2px solid rgba(212,84,122,.35)}
+.corner.tr{top:14px;right:14px;border-top:2px solid rgba(212,84,122,.35);border-right:2px solid rgba(212,84,122,.35)}
+.corner.bl{bottom:14px;left:14px;border-bottom:2px solid rgba(212,84,122,.35);border-left:2px solid rgba(212,84,122,.35)}
+.corner.br{bottom:14px;right:14px;border-bottom:2px solid rgba(212,84,122,.35);border-right:2px solid rgba(212,84,122,.35)}
+
+.pbar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(212,84,122,.1);z-index:400}
+.pfill{height:100%;background:linear-gradient(90deg,var(--n3),var(--n1),var(--n2));
+  box-shadow:0 0 8px rgba(212,84,122,.3);transition:width .4s;width:0}
+
+.hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,.9);backdrop-filter:blur(18px);
+  border:1px solid rgba(212,84,122,.2);border-radius:40px;
+  padding:9px 22px;display:flex;align-items:center;gap:16px;z-index:300;
+  box-shadow:0 4px 20px rgba(212,84,122,.12);white-space:nowrap}
+.hud-brand{color:var(--n2);font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em}
+.hud-sep{color:rgba(212,84,122,.3)}
+.hud-item{color:var(--muted);cursor:pointer;transition:color .2s;font-size:10px;font-weight:600;
+  font-family:'Share Tech Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.hud-item:hover{color:var(--n1)}
+
+.ndots{position:fixed;right:20px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:10px;z-index:300}
+.nd{width:8px;height:8px;border:2px solid rgba(212,84,122,.3);cursor:pointer;
+  transition:all .3s;transform:rotate(45deg)}
+.nd.active{background:var(--n1);border-color:var(--n1);
+  box-shadow:0 0 10px rgba(212,84,122,.4);transform:rotate(45deg) scale(1.5)}
+
+.slides{position:relative;z-index:1}
+section{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:88px 52px;position:relative;opacity:0;transform:translateY(28px);
+  transition:opacity .6s,transform .6s}
+section.vis{opacity:1;transform:translateY(0)}
+.sn{font-family:'Orbitron',sans-serif;font-size:130px;font-weight:900;
+  color:rgba(212,84,122,.04);position:absolute;top:4px;right:24px;line-height:1;
+  pointer-events:none;user-select:none}
+
+.fu{opacity:0;transform:translateY(20px);transition:all .5s ease}
+.fu.show{opacity:1;transform:translateY(0)}
+.fr{opacity:0;transform:translateX(-20px);transition:all .5s ease}
+.fr.show{opacity:1;transform:translateX(0)}
+
+.lbl{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--n1);margin-bottom:12px;
+  display:inline-flex;align-items:center;gap:8px}
+.lbl::before{content:'▶';font-size:7px}
+
+h1.ht{font-family:'Orbitron',sans-serif;font-size:clamp(32px,5vw,62px);font-weight:900;
+  line-height:.94;letter-spacing:.01em;margin-bottom:18px;color:var(--text)}
+h1.ht .gr{background:linear-gradient(135deg,var(--n1),var(--n2),var(--n5));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2.st{font-family:'Orbitron',sans-serif;font-size:clamp(18px,3vw,32px);font-weight:700;
+  line-height:1.1;letter-spacing:.02em;color:var(--text)}
+h3.ct{font-family:'Inter',sans-serif;font-size:13px;font-weight:800;color:var(--n1);
+  margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+
+.bt{font-size:13.5px;color:var(--text2);line-height:1.75}
+.bt strong{color:var(--text)}
+
+/* CARDS */
+.gcard{background:var(--card);border:1.5px solid rgba(212,84,122,.18);border-radius:16px;
+  padding:20px 18px;transition:all .3s;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.gcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(212,84,122,.4),transparent);opacity:.5}
+.gcard:hover{border-color:rgba(212,84,122,.4);box-shadow:var(--sh2);transform:translateY(-3px)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+
+/* PILLS */
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  margin:2px;font-family:'Share Tech Mono',monospace;letter-spacing:.05em}
+.p1{background:rgba(212,84,122,.12);color:var(--n1);border:1px solid rgba(212,84,122,.25)}
+.p2{background:rgba(46,196,160,.12);color:var(--n3);border:1px solid rgba(46,196,160,.25)}
+.p3{background:rgba(245,158,58,.12);color:var(--n4);border:1px solid rgba(245,158,58,.25)}
+.p4{background:rgba(108,99,212,.12);color:var(--n5);border:1px solid rgba(108,99,212,.25)}
+.p5{background:rgba(155,44,82,.12);color:var(--n2);border:1px solid rgba(155,44,82,.25)}
+
+/* HIGHLIGHT */
+.hl{padding:11px 15px;border-left:3px solid var(--n1);font-size:13px;line-height:1.65;
+  margin-top:10px;background:rgba(212,84,122,.06);border-radius:0 8px 8px 0;color:var(--text2)}
+.hl strong{color:var(--n1)}
+.hl2{border-left-color:var(--n3);background:rgba(46,196,160,.06)}
+.hl2 strong{color:var(--n3)}
+.hl3{border-left-color:var(--n5);background:rgba(108,99,212,.06)}
+.hl3 strong{color:var(--n5)}
+.hl4{border-left-color:var(--n4);background:rgba(245,158,58,.06)}
+.hl4 strong{color:var(--n4)}
+
+/* SQL BLOCKS */
+.sql-wrap{margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.sql-hdr{background:#1a0c10;padding:7px 14px;display:flex;align-items:center;gap:7px;
+  border-bottom:1px solid rgba(212,84,122,.15)}
+.sdot{width:9px;height:9px;border-radius:50%}
+.slbl{font-family:'Share Tech Mono',monospace;font-size:9px;
+  color:rgba(255,160,190,.4);letter-spacing:.18em;margin-left:auto}
+.sql{background:#1e0e16;padding:16px 18px;font-family:'Share Tech Mono',monospace;
+  font-size:12.5px;line-height:2;color:#f0aac0;overflow-x:auto}
+.sql table{border-collapse:collapse;width:100%}
+.sql td{padding:0 6px 0 0;vertical-align:top;white-space:pre}
+.sql .kw{color:#ff80a8;font-weight:700}
+.sql .fn{color:#d4b4ff}
+.sql .str{color:#80ffcc}
+.sql .nm{color:#ffe080}
+.sql .cm{color:#8a5068;font-style:italic}
+.sql .tp{color:#ff9966}
+.blank{height:7px;display:block}
+.ind{padding-left:20px}
+.ind2{padding-left:40px}
+
+/* DATA TYPE TABLE */
+.dt-table{width:100%;border-collapse:separate;border-spacing:0;
+  border-radius:12px;overflow:hidden;border:1.5px solid rgba(212,84,122,.15);
+  background:white;box-shadow:var(--sh);margin-top:14px}
+.dt-table th{padding:10px 14px;font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  border-bottom:1.5px solid rgba(212,84,122,.12);text-align:left}
+.dt-table td{padding:9px 14px;font-size:13px;color:var(--text2);
+  border-bottom:1px solid rgba(212,84,122,.06);vertical-align:top}
+.dt-table tr:hover td{background:rgba(212,84,122,.03)}
+.dt-table tr:last-child td{border-bottom:none}
+.dt-table td:first-child{font-weight:700;color:var(--n2);
+  font-family:'Share Tech Mono',monospace;font-size:11px;white-space:nowrap}
+
+/* FLOW */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  justify-content:center;margin-top:16px}
+.fbox{background:var(--card);border:1.5px solid rgba(212,84,122,.2);
+  border-radius:12px;padding:12px 14px;text-align:center;min-width:86px;
+  transition:all .3s;cursor:default;box-shadow:var(--sh)}
+.fbox:hover{border-color:var(--n1);box-shadow:var(--sh2);transform:translateY(-2px)}
+.fbox .fi{font-size:24px;display:block;margin-bottom:4px}
+.fbox .ft{font-size:11px;font-weight:700;color:var(--text);line-height:1.3}
+.fbox .fs{font-size:9px;color:var(--muted);margin-top:2px;font-family:'Share Tech Mono',monospace}
+.farr{font-size:16px;color:var(--n1);opacity:.6}
+
+/* STAT BOX */
+.stat-box{background:var(--card);border:1.5px solid rgba(212,84,122,.18);
+  border-radius:12px;padding:14px 12px;text-align:center;
+  box-shadow:var(--sh);transition:all .3s}
+.stat-box:hover{border-color:var(--n1);box-shadow:var(--sh2);transform:translateY(-2px)}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--n1)}
+.stat-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);
+  margin-top:3px;letter-spacing:.1em}
+
+/* INDEX CARDS */
+.icard{background:var(--card);border:1.5px solid rgba(212,84,122,.18);
+  border-radius:16px;padding:22px 24px;cursor:pointer;
+  transition:all .3s;box-shadow:var(--sh)}
+.icard:hover{border-color:var(--n1);transform:translateY(-5px);
+  box-shadow:0 14px 38px rgba(212,84,122,.2)}
+.inum{font-family:'Orbitron',sans-serif;font-size:42px;font-weight:800;
+  color:rgba(212,84,122,.1);line-height:1;margin-bottom:6px;transition:color .3s}
+.icard:hover .inum{color:rgba(212,84,122,.3)}
+.ititle{font-size:14px;font-weight:600;color:var(--text)}
+
+/* CONSTRAINT CARDS */
+.cst-card{background:var(--card);border:1.5px solid rgba(212,84,122,.15);
+  border-radius:14px;padding:18px 16px;box-shadow:var(--sh);transition:all .3s}
+.cst-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.cst-icon{font-size:28px;display:block;margin-bottom:8px}
+.cst-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;margin-bottom:6px}
+
+/* RELATION TABLE (ER model) */
+.er-box{background:var(--card2);border:2px solid rgba(212,84,122,.25);
+  border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+.er-header{background:rgba(212,84,122,.12);padding:8px 14px;
+  font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--n2);
+  border-bottom:1px solid rgba(212,84,122,.15);letter-spacing:.06em}
+.er-pk{background:rgba(245,158,58,.1);padding:7px 14px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;
+  color:var(--n4);border-bottom:1px solid rgba(212,84,122,.08)}
+.er-row{padding:6px 14px;font-family:'Share Tech Mono',monospace;
+  font-size:11px;color:var(--text2);border-bottom:1px solid rgba(212,84,122,.05)}
+.er-row:last-child{border-bottom:none}
+.er-fk{color:var(--n5);font-weight:700}
+
+/* CONFIG TABLE */
+.cfg{border-radius:12px;overflow:hidden;border:1px solid rgba(212,84,122,.14)}
+.cfg-row{display:flex;border-bottom:1px solid rgba(212,84,122,.07)}
+.cfg-row:last-child{border-bottom:none}
+.cfg-key{background:rgba(212,84,122,.07);padding:9px 13px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--n2);
+  min-width:130px;display:flex;align-items:center;
+  border-right:1px solid rgba(212,84,122,.08)}
+.cfg-val{padding:9px 13px;font-size:12.5px;color:var(--text2);
+  display:flex;align-items:center;flex:1;background:white}
+
+/* ACTIVITY */
+.act-wrap{background:var(--card);border:1.5px solid rgba(212,84,122,.2);
+  border-radius:16px;padding:24px 20px;box-shadow:var(--sh);
+  position:relative;overflow:hidden}
+.act-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--n1),var(--n5),var(--n3))}
+.aitem{background:var(--card2);border:1.5px solid rgba(212,84,122,.12);
+  border-radius:10px;padding:16px 18px;margin-top:10px;transition:all .3s}
+.aitem:hover{border-color:var(--n1);transform:translateX(4px);box-shadow:var(--sh)}
+.aq{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:8px}
+.qnum{display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,var(--n1),var(--n2));
+  color:white;font-size:10px;font-weight:800;flex-shrink:0;
+  font-family:'Orbitron',sans-serif}
+.ar{font-size:12.5px;color:var(--text2);line-height:1.75;padding-left:30px}
+.ar strong{color:var(--n2)}
+
+/* SCTA */
+.scta{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);
+  letter-spacing:.22em;cursor:pointer;animation:bnc 2.2s ease-in-out infinite}
+.scta svg{width:16px;stroke:var(--n1);opacity:.6}
+@keyframes bnc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* FINAL */
+.final{text-align:center;max-width:700px}
+.final h2{font-family:'Orbitron',sans-serif;font-size:clamp(26px,4.5vw,54px);
+  font-weight:900;letter-spacing:.02em;margin-bottom:14px;line-height:1.05;color:var(--text)}
+.final h2 span{background:linear-gradient(135deg,var(--n1),var(--n2),var(--n5));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cbox{margin-top:32px;padding:22px 28px;background:var(--card);
+  border:1.5px solid rgba(212,84,122,.2);border-radius:14px;box-shadow:var(--sh)}
+.cbox p{font-size:13px;color:var(--text2)} .cbox strong{color:var(--n1)}
+.cdiv{height:1px;background:linear-gradient(90deg,transparent,rgba(212,84,122,.2),transparent);margin:11px 0}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--n2);border-radius:3px}
+
+@media(max-width:768px){
+  .two,.three,.four{grid-template-columns:1fr}
+  .hud{display:none} body{cursor:auto} .cur,.cring{display:none}
+  section{padding:70px 22px} .corner{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ARMY cursor -->
+<div class="cur" id="cur">
+  <svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" width="28" height="36">
+    <polygon points="0,0 38,0 28,130 0,130" fill="#d4547a"/>
+    <polygon points="62,0 100,0 100,130 72,130" fill="#d4547a"/>
+  </svg>
+</div>
+<div class="cring" id="crng"></div>
+<canvas id="stars"></canvas>
+<div class="gridbg"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+
+<nav class="hud">
+  <span class="hud-brand">SEM·07</span><span class="hud-sep">◈</span>
+  <span class="hud-item" onclick="go(0)">INICIO</span>
+  <span class="hud-item" onclick="go(2)">TABLAS</span>
+  <span class="hud-item" onclick="go(3)">TIPOS DATO</span>
+  <span class="hud-item" onclick="go(4)">CREATE TABLE</span>
+  <span class="hud-item" onclick="go(5)">INTEGRIDAD</span>
+  <span class="hud-item" onclick="go(6)">CONSTRAINTS</span>
+  <span class="hud-item" onclick="go(7)">ACTIVIDADES</span>
+</nav>
+<div class="ndots" id="nd"></div>
+
+<div class="slides">
+
+<!-- ══ 0 HERO ══ -->
+<section id="s0">
+  <div class="sn">00</div>
+  <div style="max-width:960px;width:100%">
+    <div style="display:inline-flex;align-items:center;gap:8px;
+      background:rgba(212,84,122,.1);border:1px solid rgba(212,84,122,.25);
+      border-radius:30px;padding:6px 16px;font-size:11px;color:var(--n1);
+      font-weight:700;font-family:'Share Tech Mono',monospace;
+      letter-spacing:.1em;margin-bottom:18px">
+      ▶ UPLA · BASE DE DATOS II · SEMANA 07 ◀
+    </div>
+    <div class="lbl">Microsoft SQL Server 2022 — Capítulo III</div>
+    <h1 class="ht">TABLAS,<br>TIPOS DE DATOS<br><span class="gr">& RESTRICCIONES</span></h1>
+    <p style="font-size:15px;color:var(--text2);max-width:520px;line-height:1.8;margin-bottom:24px">
+      Tablas en SQL Server, tipos de datos, creación con CREATE TABLE, integridad de datos, restricciones (PRIMARY KEY, FOREIGN KEY, UNIQUE, DEFAULT, CHECK) e integridad referencial en cascada.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px">
+      <div class="stat-box"><div class="stat-val">7</div><div class="stat-lbl">CATEGORÍAS DATO</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n3)">5</div><div class="stat-lbl">RESTRICCIONES</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n5)">3</div><div class="stat-lbl">NIVELES INTEGR.</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n4)">9+</div><div class="stat-lbl">EJERCICIOS</div></div>
+    </div>
+    <div style="display:flex;gap:28px;flex-wrap:wrap">
+      <div><span style="display:block;color:var(--muted);font-size:9px;font-family:'Share Tech Mono',monospace;margin-bottom:3px;letter-spacing:.15em">ESTUDIANTE</span>
+        <span style="font-size:13px;font-weight:600">Alexandra Milagros Cuchula Daniel</span></div>
+      <div><span style="display:block;color:var(--muted);font-size:9px;font-family:'Share Tech Mono',monospace;margin-bottom:3px;letter-spacing:.15em">DOCENTE</span>
+        <span style="font-size:13px;font-weight:600">Ing. Raúl Fernández Bejarano</span></div>
+      <div><span style="display:block;color:var(--muted);font-size:9px;font-family:'Share Tech Mono',monospace;margin-bottom:3px;letter-spacing:.15em">AÑO</span>
+        <span style="font-size:13px;font-weight:600">UPLA · 2026</span></div>
+    </div>
+  </div>
+  <div class="scta" onclick="go(1)">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    PRESS START
+  </div>
+</section>
+
+<!-- ══ 1 MAPA ══ -->
+<section id="s1">
+  <div class="sn">01</div>
+  <div style="max-width:960px;width:100%">
+    <div class="lbl fu">// MAPA DE NIVELES</div>
+    <h2 class="st fu" style="transition-delay:.1s">CONTENIDO<br>DE LA SEMANA</h2>
+    <div class="four" style="margin-top:24px">
+      <div class="icard fu" style="transition-delay:.2s;border-top:3px solid var(--n1)" onclick="go(2)">
+        <div class="inum">01</div><div class="ititle">¿Qué es una tabla? Estructura fila-columna y conceptos clave</div>
+      </div>
+      <div class="icard fu" style="transition-delay:.3s;border-top:3px solid var(--n3)" onclick="go(3)">
+        <div class="inum">02</div><div class="ititle">7 categorías de tipos de datos en SQL Server 2022</div>
+      </div>
+      <div class="icard fu" style="transition-delay:.4s;border-top:3px solid var(--n5)" onclick="go(4)">
+        <div class="inum">03</div><div class="ititle">Creación y modificación de tablas: CREATE TABLE y ALTER TABLE</div>
+      </div>
+      <div class="icard fu" style="transition-delay:.5s;border-top:3px solid var(--n4)" onclick="go(5)">
+        <div class="inum">04</div><div class="ititle">Integridad de datos: entidad, dominio y referencial</div>
+      </div>
+      <div class="icard fu" style="transition-delay:.6s;border-top:3px solid var(--n2);grid-column:span 2" onclick="go(6)">
+        <div class="inum">05</div><div class="ititle">Restricciones (Constraints): PRIMARY KEY, FOREIGN KEY, UNIQUE, DEFAULT, CHECK e integridad en cascada</div>
+      </div>
+      <div class="icard fu" style="transition-delay:.7s;border-top:3px solid var(--n4);grid-column:span 2" onclick="go(7)">
+        <div class="inum">06</div><div class="ititle">Actividades resueltas + Ejercicio propuesto: BD QhatuPERU completa</div>
+      </div>
+    </div>
+    <div class="fu" style="transition-delay:.8s;margin-top:18px">
+      <div class="flow">
+        <div class="fbox"><span class="fi">📋</span><div class="ft">Tabla</div><div class="fs">filas×cols</div></div>
+        <div class="farr">→</div>
+        <div class="fbox"><span class="fi">🔢</span><div class="ft">Tipos Dato</div><div class="fs">int,varchar…</div></div>
+        <div class="farr">→</div>
+        <div class="fbox"><span class="fi">🏗️</span><div class="ft">CREATE</div><div class="fs">TABLE</div></div>
+        <div class="farr">→</div>
+        <div class="fbox"><span class="fi">🔒</span><div class="ft">Integridad</div><div class="fs">entidad+ref</div></div>
+        <div class="farr">→</div>
+        <div class="fbox"><span class="fi">⚙️</span><div class="ft">Constraints</div><div class="fs">PK,FK,CHK…</div></div>
+        <div class="farr">→</div>
+        <div class="fbox"><span class="fi">🌊</span><div class="ft">Cascada</div><div class="fs">ON DELETE</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 2 TABLAS ══ -->
+<section id="s2">
+  <div class="sn">02</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fr">// NIVEL 01 · FUNDAMENTO</div>
+    <h2 class="st fr" style="transition-delay:.1s">¿QUÉ ES UNA<br>TABLA?</h2>
+    <div class="two" style="margin-top:20px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="gcard fr" style="transition-delay:.2s">
+          <h3 class="ct">📋 DEFINICIÓN</h3>
+          <p class="bt">Una tabla es un objeto de la base de datos que se usa como <strong>almacenamiento de datos</strong>. Tiene formato fila-columna similar a las tablas o listas de Microsoft Excel.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <div style="background:rgba(212,84,122,.06);border-left:3px solid var(--n1);border-radius:0 8px 8px 0;padding:10px 13px">
+              <div style="font-size:12px;font-weight:800;color:var(--n1);margin-bottom:3px">📌 FILAS (Registros)</div>
+              <p class="bt" style="font-size:12px">Cada fila es un registro único. No existe una fila igual a otra en la misma tabla.</p>
+            </div>
+            <div style="background:rgba(46,196,160,.06);border-left:3px solid var(--n3);border-radius:0 8px 8px 0;padding:10px 13px">
+              <div style="font-size:12px;font-weight:800;color:var(--n3);margin-bottom:3px">📌 COLUMNAS (Campos)</div>
+              <p class="bt" style="font-size:12px">Cada columna almacena valores de propiedades específicas del registro. Se debe definir el <strong>tipo de dato</strong> antes de crear la tabla.</p>
+            </div>
+            <div style="background:rgba(108,99,212,.06);border-left:3px solid var(--n5);border-radius:0 8px 8px 0;padding:10px 13px">
+              <div style="font-size:12px;font-weight:800;color:var(--n5);margin-bottom:3px">📌 TIPO DE DATO</div>
+              <p class="bt" style="font-size:12px">Define el tipo de información (cadena, número o fecha) que la columna almacena. Cada columna debe contener <strong>solo un tipo</strong>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="gcard fr" style="transition-delay:.3s">
+          <h3 class="ct">🗂️ EJEMPLO: TABLA EMPLEADO</h3>
+          <p class="bt" style="font-size:12.5px;margin-bottom:12px">Cada fila = un empleado único. Columnas posibles:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(245,158,58,.08);border:1px solid rgba(245,158,58,.2);border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:11px;font-weight:700;color:var(--n4)">apellido_paterno</div>
+              <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace">cadena</div>
+            </div>
+            <div style="background:rgba(212,84,122,.08);border:1px solid rgba(212,84,122,.2);border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:11px;font-weight:700;color:var(--n1)">fecha_nacimiento</div>
+              <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace">fecha</div>
+            </div>
+            <div style="background:rgba(108,99,212,.08);border:1px solid rgba(108,99,212,.2);border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:11px;font-weight:700;color:var(--n5)">estado_civil</div>
+              <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace">cadena</div>
+            </div>
+            <div style="background:rgba(46,196,160,.08);border:1px solid rgba(46,196,160,.2);border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:11px;font-weight:700;color:var(--n3)">numero_hijos</div>
+              <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace">numérico</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Syntax CREATE TABLE -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="gcard fr" style="transition-delay:.4s">
+          <h3 class="ct">⌨️ SINTAXIS CREATE TABLE</h3>
+          <p class="bt" style="font-size:12px;margin-bottom:10px">Sintaxis básica para crear una tabla:</p>
+          <div class="sql-wrap">
+            <div class="sql-hdr">
+              <div class="sdot" style="background:#ff5f57"></div>
+              <div class="sdot" style="background:#febc2e"></div>
+              <div class="sdot" style="background:#28c840"></div>
+              <span class="slbl">T-SQL · CREATE TABLE</span>
+            </div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">CREATE TABLE</span> nombre_tabla (</td><td></td></tr>
+              <tr><td class="ind">   nombre_columna1</td><td> <span class="tp">tipo_dato1</span> [<span class="kw">NULL</span>|<span class="kw">NOT NULL</span>] ,</td></tr>
+              <tr><td class="ind">   nombre_columna2</td><td> <span class="tp">tipo_dato2</span> [<span class="kw">NULL</span>|<span class="kw">NOT NULL</span>] ,</td></tr>
+              <tr><td class="ind">   nombre_columna3</td><td> <span class="tp">tipo_dato3</span> [<span class="kw">NULL</span>|<span class="kw">NOT NULL</span>] ,</td></tr>
+              <tr><td class="ind">   …</td><td></td></tr>
+              <tr><td>)</td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="hl" style="margin-top:10px;font-size:12px">
+            <strong>NULL / NOT NULL:</strong> establece si el dato es obligatorio (NOT NULL) u opcional (NULL). Si no se especifica, el valor predeterminado depende de la opción de configuración ANSI null default de la BD.
+          </div>
+        </div>
+        <div class="gcard fr" style="transition-delay:.5s">
+          <h3 class="ct">📊 EJEMPLO TABLA TIENDA</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr">
+              <div class="sdot" style="background:#ff5f57"></div>
+              <div class="sdot" style="background:#febc2e"></div>
+              <div class="sdot" style="background:#28c840"></div>
+              <span class="slbl">T-SQL · TABLA TIENDA</span>
+            </div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">USE</span> QhatuPERU</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="kw">CREATE TABLE</span> TIENDA (</td><td></td></tr>
+              <tr><td class="ind">   CodTienda</td><td> <span class="tp">int</span>         <span class="kw">NOT NULL</span> ,</td></tr>
+              <tr><td class="ind">   Direccion</td><td> <span class="tp">varchar(60)</span> <span class="kw">NULL</span>     ,</td></tr>
+              <tr><td class="ind">   Distrito</td><td>  <span class="tp">varchar(20)</span> <span class="kw">NULL</span>     ,</td></tr>
+              <tr><td class="ind">   Telefono</td><td>  <span class="tp">varchar(15)</span> <span class="kw">NULL</span>     ,</td></tr>
+              <tr><td class="ind">   Fax</td><td>       <span class="tp">varchar(15)</span> <span class="kw">NULL</span>      )</td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 3 TIPOS DE DATOS ══ -->
+<section id="s3">
+  <div class="sn">03</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fu">// NIVEL 02 · TIPOS DE DATOS</div>
+    <h2 class="st fu" style="transition-delay:.1s">TIPOS DE DATOS<br>EN SQL SERVER 2022</h2>
+    <p class="bt fu" style="transition-delay:.2s;max-width:700px;margin-top:8px">SQL Server organiza sus tipos de datos en <strong style="color:var(--n1)">7 categorías</strong>. Antes de crear una tabla es fundamental conocerlos para asignar el tipo correcto a cada columna.</p>
+
+    <!-- 2.1 Numéricos exactos -->
+    <div class="gcard fu" style="transition-delay:.3s;margin-top:20px;border-top:3px solid var(--n1)">
+      <h3 class="ct">🔢 2.1 NUMÉRICOS EXACTOS</h3>
+      <p class="bt" style="font-size:12.5px;margin-bottom:12px">Permiten especificar exactamente la escala y precisión. Se usan en aplicaciones financieras donde se requiere consistencia (ej: siempre 2 decimales).</p>
+      <table class="dt-table">
+        <thead><tr>
+          <th style="background:rgba(212,84,122,.1);color:var(--n2)">Tipo de dato</th>
+          <th style="background:rgba(212,84,122,.1);color:var(--n2)">Descripción</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>bit</td><td>Entero. Solo puede tomar el valor 1, 0 o NULL.</td></tr>
+          <tr><td>tinyint</td><td>Entero de 1 byte. Valores de 0 a 255.</td></tr>
+          <tr><td>smallint</td><td>Entero de 2 bytes. Valores de −2¹⁵ (−32,768) a 2¹⁵−1 (32,767).</td></tr>
+          <tr><td>int</td><td>Entero de 4 bytes. Valores de −2³¹ a 2³¹−1 (±2,147,483,647).</td></tr>
+          <tr><td>bigint</td><td>Entero de 8 bytes. Valores de −2⁶³ a 2⁶³−1 (±9,223,372,036,854,775,807).</td></tr>
+          <tr><td>decimal(p,s)</td><td><strong>p</strong> = precisión (1–38, default 18). <strong>s</strong> = escala (0 hasta p).</td></tr>
+          <tr><td>numeric(p,s)</td><td>Equivalente a decimal. Mismo rango y comportamiento.</td></tr>
+          <tr><td>smallmoney</td><td>Valor monetario de 4 bytes. De −214,748.3648 a 214,748.3647.</td></tr>
+          <tr><td>money</td><td>Valor monetario de 8 bytes. De −922,337,203,685,477.5808 a 922,337,203,685,477.5807.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="two" style="margin-top:14px">
+      <!-- 2.2 Numéricos aproximados -->
+      <div class="gcard fu" style="transition-delay:.35s;border-top:3px solid var(--n3)">
+        <h3 class="ct">📐 2.2 NUMÉRICOS APROXIMADOS</h3>
+        <p class="bt" style="font-size:12px;margin-bottom:10px">Almacenan datos sin precisión exacta. Usados en aplicaciones científicas con gran cantidad de decimales.</p>
+        <table class="dt-table">
+          <thead><tr><th style="background:rgba(46,196,160,.1);color:var(--n3)">Tipo</th><th style="background:rgba(46,196,160,.1);color:var(--n3)">Descripción</th></tr></thead>
+          <tbody>
+            <tr><td>float(n)</td><td>Si n=1–24: 4 bytes, 7 dígitos. Si n=25–53: 8 bytes, 15 dígitos. Default n=53.</td></tr>
+            <tr><td>real / float(24)</td><td>Numérico de 4 bytes. Valores de −3.40E+38 a 3.40E+38.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 2.3 Fecha y hora -->
+      <div class="gcard fu" style="transition-delay:.4s;border-top:3px solid var(--n5)">
+        <h3 class="ct">📅 2.3 FECHA Y HORA</h3>
+        <p class="bt" style="font-size:12px;margin-bottom:10px">Pueden almacenarse como <strong>datetime</strong> o <strong>smalldatetime</strong>. Desde SQL Server 2008 también existen tipos separados.</p>
+        <table class="dt-table">
+          <thead><tr><th style="background:rgba(108,99,212,.1);color:var(--n5)">Tipo</th><th style="background:rgba(108,99,212,.1);color:var(--n5)">Descripción</th></tr></thead>
+          <tbody>
+            <tr><td>datetime</td><td>01/01/1753 – 31/12/9999, intervalo 00:00:00 a 23:59:59.997. 8 bytes.</td></tr>
+            <tr><td>smalldatetime</td><td>01/01/1900 – 06/06/2079, intervalo 00:00:00 a 23:59:59. 4 bytes.</td></tr>
+            <tr><td>date</td><td>Fecha del 01/01/0001 al 31/12/9999. 3 bytes.</td></tr>
+            <tr><td>datetime2(p)</td><td>01/01/0001 al 31/12/9999, precisión de 100ns. p=0–7 dígitos.</td></tr>
+            <tr><td>time(p)</td><td>00:00:00.0000000 a 23:59:59.9999999. p=0–7 dígitos.</td></tr>
+            <tr><td>datetimeoffset(p)</td><td>Fecha y hora con reconocimiento de zona horaria.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="two" style="margin-top:14px">
+      <!-- 2.4 Cadenas de caracteres -->
+      <div class="gcard fu" style="transition-delay:.45s;border-top:3px solid var(--n4)">
+        <h3 class="ct">🔤 2.4 CADENAS DE CARACTERES</h3>
+        <p class="bt" style="font-size:12px;margin-bottom:10px">Para almacenar cadenas de caracteres NO Unicode.</p>
+        <table class="dt-table">
+          <thead><tr><th style="background:rgba(245,158,58,.1);color:var(--n4)">Tipo</th><th style="background:rgba(245,158,58,.1);color:var(--n4)">Descripción</th></tr></thead>
+          <tbody>
+            <tr><td>char(n) / character(n)</td><td>Longitud fija. n puede ser 1 a 8000 bytes.</td></tr>
+            <tr><td>varchar(n|max)</td><td>Longitud variable. n=1–8000. max indica hasta 2³¹−1 bytes.</td></tr>
+            <tr><td>text *</td><td>Longitud variable hasta 2³¹−1 caracteres. *Reemplazar por varchar(max).</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 2.5-2.6 Unicode + Binarias -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="gcard fu" style="transition-delay:.5s;border-top:3px solid var(--n2)">
+          <h3 class="ct">🌐 2.5 CADENAS UNICODE</h3>
+          <table class="dt-table">
+            <thead><tr><th style="background:rgba(155,44,82,.1);color:var(--n2)">Tipo</th><th style="background:rgba(155,44,82,.1);color:var(--n2)">Descripción</th></tr></thead>
+            <tbody>
+              <tr><td>nchar(n)</td><td>UNICODE longitud fija. 1–4000 caracteres. Almacenamiento = 2n bytes.</td></tr>
+              <tr><td>nvarchar(n|max)</td><td>UNICODE longitud variable. 1–4000 caracteres. max = 2³¹−1.</td></tr>
+              <tr><td>ntext *</td><td>UNICODE variable hasta 2³¹−1. *Usar nvarchar(max).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="gcard fu" style="transition-delay:.55s;border-top:3px solid var(--n3)">
+          <h3 class="ct">💾 2.6 CADENAS BINARIAS</h3>
+          <table class="dt-table">
+            <thead><tr><th style="background:rgba(46,196,160,.1);color:var(--n3)">Tipo</th><th style="background:rgba(46,196,160,.1);color:var(--n3)">Descripción</th></tr></thead>
+            <tbody>
+              <tr><td>binary(n)</td><td>Binario longitud fija. n = 1–8000 bytes.</td></tr>
+              <tr><td>varbinary(n|max)</td><td>Binario longitud variable. n=1–8000. max = 2³¹−1.</td></tr>
+              <tr><td>image *</td><td>Binario variable 0 a 2³¹−1. *Usar varbinary(max).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.7 Tipos especiales -->
+    <div class="gcard fu" style="transition-delay:.6s;margin-top:14px;border-top:3px solid var(--n5)">
+      <h3 class="ct">⚡ 2.7 TIPOS ESPECIALES</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px">
+        <div style="background:rgba(212,84,122,.06);border:1px solid rgba(212,84,122,.15);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🖱️</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n1);margin-bottom:4px;font-family:'Share Tech Mono',monospace">cursor</div>
+          <div style="font-size:10px;color:var(--muted)">Variables o parámetros de salida en stored procedures.</div>
+        </div>
+        <div style="background:rgba(108,99,212,.06);border:1px solid rgba(108,99,212,.15);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🌲</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n5);margin-bottom:4px;font-family:'Share Tech Mono',monospace">hierarchyid</div>
+          <div style="font-size:10px;color:var(--muted)">Posición en una jerarquía (org. árbol).</div>
+        </div>
+        <div style="background:rgba(46,196,160,.06);border:1px solid rgba(46,196,160,.15);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🔀</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n3);margin-bottom:4px;font-family:'Share Tech Mono',monospace">sql_variant</div>
+          <div style="font-size:10px;color:var(--muted)">Cualquier tipo soportado excepto text, ntext, image, timestamp, sql_variant.</div>
+        </div>
+        <div style="background:rgba(245,158,58,.06);border:1px solid rgba(245,158,58,.15);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🔖</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n4);margin-bottom:4px;font-family:'Share Tech Mono',monospace">rowversion</div>
+          <div style="font-size:10px;color:var(--muted)">Números binarios únicos autogenerados dentro de la BD.</div>
+        </div>
+        <div style="background:rgba(155,44,82,.06);border:1px solid rgba(155,44,82,.15);border-radius:10px;padding:12px;text-align:center;grid-column:span 2">
+          <div style="font-size:20px;margin-bottom:6px">🆔</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n2);margin-bottom:4px;font-family:'Share Tech Mono',monospace">uniqueidentifier</div>
+          <div style="font-size:10px;color:var(--muted)">GUID de 16 bytes. Identificadores únicos en el sistema.</div>
+        </div>
+        <div style="background:rgba(108,99,212,.06);border:1px solid rgba(108,99,212,.15);border-radius:10px;padding:12px;text-align:center;grid-column:span 2">
+          <div style="font-size:20px;margin-bottom:6px">📝</div>
+          <div style="font-size:11px;font-weight:700;color:var(--n5);margin-bottom:4px;font-family:'Share Tech Mono',monospace">xml(xml_esquema)</div>
+          <div style="font-size:10px;color:var(--muted)">Almacena datos XML.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 4 CREATE TABLE & ALTER TABLE ══ -->
+<section id="s4">
+  <div class="sn">04</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fu">// NIVEL 03 · CREACIÓN Y MODIFICACIÓN</div>
+    <h2 class="st fu" style="transition-delay:.1s">CREATE TABLE<br>& ALTER TABLE</h2>
+    <div class="two" style="margin-top:20px">
+      <!-- ALTER TABLE -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="gcard fr" style="transition-delay:.2s">
+          <h3 class="ct">🔧 ALTER TABLE — MODIFICAR UNA TABLA</h3>
+          <p class="bt" style="font-size:12.5px;margin-bottom:10px">Permite modificar la definición de una tabla existente. Opciones principales:</p>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · ALTER TABLE</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">ALTER TABLE</span> nombre_tabla</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD</span>    nombre_columna  propiedades_columna</td><td></td></tr>
+              <tr><td class="ind">   | <span class="kw">DROP COLUMN</span> nombre_columna</td><td></td></tr>
+              <tr><td class="ind">   | <span class="kw">ALTER COLUMN</span> nombre_columna</td><td></td></tr>
+              <tr><td class="ind2">            nuevas_propiedades_columna</td><td></td></tr>
+              <tr><td class="ind">   | <span class="kw">ADD CONSTRAINT</span> nombre_restriccion</td><td></td></tr>
+              <tr><td class="ind2">     <span class="kw">PRIMARY KEY</span>… | <span class="kw">UNIQUE</span>… |</td><td></td></tr>
+              <tr><td class="ind2">     <span class="kw">FOREIGN KEY</span>… | <span class="kw">DEFAULT</span>… |</td><td></td></tr>
+              <tr><td class="ind2">     <span class="kw">CHECK</span>…</td><td></td></tr>
+              <tr><td class="ind">   | <span class="kw">DROP CONSTRAINT</span> nombre_restriccion</td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px">
+            <div class="bt" style="font-size:12px">✦ <strong>ADD nombre_columna:</strong> crea una nueva columna en la tabla.</div>
+            <div class="bt" style="font-size:12px">✦ <strong>DROP COLUMN:</strong> elimina una columna existente.</div>
+            <div class="bt" style="font-size:12px">✦ <strong>ALTER COLUMN:</strong> cambia las propiedades de una columna.</div>
+            <div class="bt" style="font-size:12px">✦ <strong>ADD CONSTRAINT:</strong> añade una restricción (PK, FK, UNIQUE, DEFAULT, CHECK).</div>
+            <div class="bt" style="font-size:12px">✦ <strong>DROP CONSTRAINT:</strong> elimina una restricción existente.</div>
+          </div>
+        </div>
+
+        <div class="gcard fr" style="transition-delay:.3s">
+          <h3 class="ct">📌 PROPIEDAD IDENTITY</h3>
+          <p class="bt" style="font-size:12.5px">Permite definir una columna numérica entera cuyo valor es <strong>autogenerado</strong> secuencialmente a medida que se insertan filas. Útil para claves primarias numéricas.</p>
+          <div class="sql-wrap" style="margin-top:10px">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · IDENTITY — TABLA LINEA</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">USE</span> QhatuPERU</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="kw">CREATE TABLE</span> LINEA (</td><td></td></tr>
+              <tr><td class="ind">   CodLinea</td><td>    <span class="tp">int</span> <span class="fn">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="kw">PRIMARY KEY</span>,</td></tr>
+              <tr><td class="ind">   NomLinea</td><td>    <span class="tp">varchar(20)</span> <span class="kw">NOT NULL</span>,</td></tr>
+              <tr><td class="ind">   Descripcion</td><td> <span class="tp">varchar(40)</span> <span class="kw">NULL</span> )</td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="hl2" style="margin-top:8px;font-size:12px"><strong>IDENTITY(semilla, incremento):</strong> semilla = primer valor, incremento = cuánto aumenta por cada inserción.</div>
+        </div>
+      </div>
+
+      <!-- sp_help + Ej Tablа добавление columna -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="gcard fr" style="transition-delay:.4s">
+          <h3 class="ct">🔍 sp_help — VER DEFINICIÓN DE TABLA</h3>
+          <p class="bt" style="font-size:12.5px">El procedimiento de sistema <strong>sp_help</strong> genera un reporte que muestra la definición de un objeto de la BD. Lo puede ejecutar cualquier usuario.</p>
+          <div class="sql-wrap" style="margin-top:10px">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · sp_help</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="cm">-- Ver definición de una tabla:</span></td><td></td></tr>
+              <tr><td><span class="fn">sp_help</span> nombre_objeto_basedatos</td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Ejemplo real:</span></td><td></td></tr>
+              <tr><td><span class="fn">sp_help</span> TIENDA</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <p class="bt" style="font-size:12px;margin-top:8px">El reporte muestra: propiedades principales de la tabla, definición de cada columna, restricciones e índices.</p>
+        </div>
+
+        <div class="gcard fr" style="transition-delay:.5s">
+          <h3 class="ct">➕ AGREGAR COLUMNA CON ALTER TABLE</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · ADD COLUMN</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="cm">-- Añadir columna NULL (siempre funciona):</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> TablaPrueba</td><td></td></tr>
+              <tr><td><span class="kw">ADD</span> campo4</td><td> <span class="tp">MONEY</span> <span class="kw">NULL</span></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Añadir columna NOT NULL a tabla con datos:</span></td><td></td></tr>
+              <tr><td><span class="cm">-- Paso 1: agregar como NULL</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> TablaPrueba</td><td></td></tr>
+              <tr><td><span class="kw">ADD</span> campo6</td><td> <span class="tp">DECIMAL(12,3)</span> <span class="kw">NULL</span></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Paso 2: actualizar valores existentes</span></td><td></td></tr>
+              <tr><td><span class="kw">UPDATE</span> TablaPrueba <span class="kw">SET</span> campo6 = <span class="nm">123.456</span></td><td></td></tr>
+              <tr><td><span class="kw">WHERE</span> campo1 = <span class="nm">1</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Paso 3: redefinir como NOT NULL</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> TablaPrueba</td><td></td></tr>
+              <tr><td><span class="kw">ALTER COLUMN</span> campo6 <span class="tp">DECIMAL(12,3)</span> <span class="kw">NOT NULL</span></td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="hl4" style="margin-top:8px;font-size:12px"><strong>Nota:</strong> ALTER TABLE solo permite añadir columnas NOT NULL si no hay datos existentes, o si la columna tiene DEFAULT, o si es columna IDENTITY.</div>
+        </div>
+
+        <div class="gcard fr" style="transition-delay:.6s">
+          <h3 class="ct">🗑️ DROP TABLE — ELIMINAR TABLA</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · DROP TABLE</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">DROP TABLE</span> nombre_tabla</td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Ejemplo:</span></td><td></td></tr>
+              <tr><td><span class="kw">DROP TABLE</span> ORDEN_DETALLE</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="hl" style="margin-top:8px;font-size:12px"><strong>⚠️ Importante:</strong> Si la tabla es referenciada por una FK, primero debe eliminarse la tabla que contiene la clave foránea, luego la tabla referenciada.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 5 INTEGRIDAD ══ -->
+<section id="s5">
+  <div class="sn">05</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fu">// NIVEL 04 · INTEGRIDAD</div>
+    <h2 class="st fu" style="transition-delay:.1s">INTEGRIDAD<br>DE DATOS</h2>
+    <p class="bt fu" style="transition-delay:.2s;max-width:700px;margin-top:8px">La integridad de datos es el mecanismo para <strong>garantizar la consistencia y exactitud</strong> de los datos. Se define en distintos niveles dependiendo de la parte de la BD afectada.</p>
+    <div class="three" style="margin-top:20px">
+      <div class="gcard fu" style="transition-delay:.3s;border-top:3px solid var(--n1)">
+        <div style="font-size:32px;margin-bottom:10px">🏛️</div>
+        <h3 class="ct">INTEGRIDAD DE ENTIDAD</h3>
+        <p class="bt" style="font-size:12.5px">La tabla requiere que todas sus filas sean <strong>únicas</strong>. Se garantiza definiendo para cada fila un <strong>identificador único (clave primaria)</strong>. Por ejemplo, en ARTICULO cada fila representa un artículo único — no puede aparecer registrado en dos filas.</p>
+      </div>
+      <div class="gcard fu" style="transition-delay:.38s;border-top:3px solid var(--n3)">
+        <div style="font-size:32px;margin-bottom:10px">🎯</div>
+        <h3 class="ct">INTEGRIDAD DE DOMINIO</h3>
+        <p class="bt" style="font-size:12.5px">El conjunto de valores aceptables de un atributo es el <strong>dominio</strong>. La integridad de dominio determina las condiciones que deben cumplir los valores a almacenar en una columna. Se define mediante reglas de validación, valores predeterminados, conjuntos de valores permitidos (FK), tipo y formato. Ej: PrecioProveedor no puede ser negativo.</p>
+      </div>
+      <div class="gcard fu" style="transition-delay:.46s;border-top:3px solid var(--n5)">
+        <div style="font-size:32px;margin-bottom:10px">🔗</div>
+        <h3 class="ct">INTEGRIDAD REFERENCIAL</h3>
+        <p class="bt" style="font-size:12.5px">Garantiza que la relación entre la <strong>clave primaria</strong> (tabla referenciada) y la <strong>clave foránea</strong> (tabla de referencia) siempre se mantiene. Una fila referenciada no puede anularse ni cambiar su valor de PK si hay filas que apuntan a ella. Ej: ARTICULO debe pertenecer a solo una LINEA existente.</p>
+      </div>
+    </div>
+
+    <!-- Integridad referencial en cascada -->
+    <div class="gcard fu" style="transition-delay:.54s;margin-top:16px">
+      <h3 class="ct">🌊 INTEGRIDAD REFERENCIAL EN CASCADA</h3>
+      <div class="two" style="margin-top:12px;gap:20px">
+        <div>
+          <p class="bt" style="font-size:12.5px">Cuando se intenta eliminar una fila de una tabla a la que apuntan claves foráneas, la eliminación falla si quedarían filas "huérfanas". La integridad referencial en cascada controla las acciones mediante las cláusulas <strong>ON DELETE</strong> y <strong>ON UPDATE</strong>.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <div style="background:rgba(212,84,122,.06);border-left:3px solid var(--n1);border-radius:0 8px 8px 0;padding:9px 12px">
+              <div style="font-size:12px;font-weight:800;color:var(--n1)">NO ACTION</div>
+              <div class="bt" style="font-size:12px">La eliminación/actualización produce un error.</div>
+            </div>
+            <div style="background:rgba(46,196,160,.06);border-left:3px solid var(--n3);border-radius:0 8px 8px 0;padding:9px 12px">
+              <div style="font-size:12px;font-weight:800;color:var(--n3)">CASCADE</div>
+              <div class="bt" style="font-size:12px">También se eliminan/actualizan todas las filas con claves foráneas que apuntan a la fila afectada.</div>
+            </div>
+            <div style="background:rgba(108,99,212,.06);border-left:3px solid var(--n5);border-radius:0 8px 8px 0;padding:9px 12px">
+              <div style="font-size:12px;font-weight:800;color:var(--n5)">SET NULL</div>
+              <div class="bt" style="font-size:12px">Las filas con FK que apuntan a la fila eliminada se configuran con NULL en la clave foránea.</div>
+            </div>
+            <div style="background:rgba(245,158,58,.06);border-left:3px solid var(--n4);border-radius:0 8px 8px 0;padding:9px 12px">
+              <div style="font-size:12px;font-weight:800;color:var(--n4)">SET DEFAULT</div>
+              <div class="bt" style="font-size:12px">Las filas con FK se configuran al valor predeterminado de la columna FK.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="bt" style="font-size:12px;margin-bottom:10px">Ejemplo: Definir integridad en cascada entre LINEA y ARTICULO — al eliminar una línea, se eliminan automáticamente sus artículos:</p>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · CASCADE</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="cm">-- Eliminar FK existente</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+              <tr><td><span class="kw">DROP CONSTRAINT</span> FK_Articulo_Linea</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Recrear FK con CASCADE</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_Articulo_Linea</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodLinea )</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">REFERENCES</span> LINEA</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ON DELETE</span> <span class="nm">CASCADE</span></td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 6 CONSTRAINTS ══ -->
+<section id="s6">
+  <div class="sn">06</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fu">// NIVEL 05 · RESTRICCIONES</div>
+    <h2 class="st fu" style="transition-delay:.1s">RESTRICCIONES<br>(CONSTRAINTS)</h2>
+    <p class="bt fu" style="transition-delay:.2s;max-width:700px;margin-top:8px">Las restricciones son el <strong>método preferido</strong> para forzar la integridad de los datos. Forman parte de la definición de las tablas y son el método estándar ANSI para garantizar que los datos ingresados sean válidos y que se mantengan las relaciones entre tablas.</p>
+
+    <!-- 5 constraint cards -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px">
+      <div class="cst-card fu" style="transition-delay:.25s;border-top:3px solid var(--n1)">
+        <span class="cst-icon">🔑</span>
+        <div class="cst-name" style="color:var(--n1)">PRIMARY KEY</div>
+        <p class="bt" style="font-size:11.5px">Garantiza que cada fila sea única. No permite NULL ni duplicados. Se puede aplicar sobre una o varias columnas (clave compuesta).</p>
+        <div class="pill p1" style="margin-top:8px">PK_nombre</div>
+      </div>
+      <div class="cst-card fu" style="transition-delay:.33s;border-top:3px solid var(--n3)">
+        <span class="cst-icon">🔗</span>
+        <div class="cst-name" style="color:var(--n3)">FOREIGN KEY</div>
+        <p class="bt" style="font-size:11.5px">Define la columna o combinación que relaciona la tabla secundaria con la primaria. Establece la integridad referencial.</p>
+        <div class="pill p2" style="margin-top:8px">FK_tabla_ref</div>
+      </div>
+      <div class="cst-card fu" style="transition-delay:.41s;border-top:3px solid var(--n5)">
+        <span class="cst-icon">🚫</span>
+        <div class="cst-name" style="color:var(--n5)">UNIQUE</div>
+        <p class="bt" style="font-size:11.5px">Garantiza que cada valor en una columna sea único. A diferencia de PK, permite valores NULL.</p>
+        <div class="pill p4" style="margin-top:8px">U_tabla_col</div>
+      </div>
+      <div class="cst-card fu" style="transition-delay:.49s;border-top:3px solid var(--n4)">
+        <span class="cst-icon">⚙️</span>
+        <div class="cst-name" style="color:var(--n4)">DEFAULT</div>
+        <p class="bt" style="font-size:11.5px">Establece el valor predeterminado para una columna cuando no se especifica al insertar. Útil cuando la columna es NOT NULL.</p>
+        <div class="pill p3" style="margin-top:8px">DF_tabla_col</div>
+      </div>
+      <div class="cst-card fu" style="transition-delay:.57s;border-top:3px solid var(--n2)">
+        <span class="cst-icon">✅</span>
+        <div class="cst-name" style="color:var(--n2)">CHECK</div>
+        <p class="bt" style="font-size:11.5px">Establece la regla que debe cumplir un valor para ser aceptable en una columna. Implementa reglas de negocio sencillas.</p>
+        <div class="pill p5" style="margin-top:8px">CK_tabla_col</div>
+      </div>
+    </div>
+
+    <!-- Sintaxis de cada constraint -->
+    <div class="two" style="margin-top:16px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="gcard fu" style="transition-delay:.6s">
+          <h3 class="ct">🔑 SINTAXIS PRIMARY KEY</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · PRIMARY KEY</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="cm">-- En tabla existente:</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> TIENDA</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> PK_TIENDA</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">PRIMARY KEY</span>( CodTienda )</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- Clave primaria compuesta:</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> ORDEN_DETALLE</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> PK_ORDEN_DETALLE</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">PRIMARY KEY</span>( NumOrden, CodArticulo )</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+        <div class="gcard fu" style="transition-delay:.65s">
+          <h3 class="ct">🔗 SINTAXIS FOREIGN KEY</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · FOREIGN KEY</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> fk_Articulo_Linea</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodLinea )</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">REFERENCES</span> LINEA</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="hl2" style="margin-top:8px;font-size:12px">La columna <strong>CodLinea</strong> de ARTICULO referencia la PK <strong>CodLinea</strong> de LINEA. La FK apunta a la clave primaria de la tabla referenciada.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="gcard fu" style="transition-delay:.7s">
+          <h3 class="ct">🚫 UNIQUE · ⚙️ DEFAULT · ✅ CHECK</h3>
+          <div class="sql-wrap">
+            <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · UNIQUE + DEFAULT + CHECK</span></div>
+            <div class="sql"><table><tbody>
+              <tr><td><span class="cm">-- UNIQUE: nombre no duplicado</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> LINEA</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> U_Linea_NomLinea</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">UNIQUE</span>( NomLinea )</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- DEFAULT: Descontinuado = 0 por defecto</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> DF_Articulo_Descontinuado</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">DEFAULT</span> <span class="nm">0</span> <span class="kw">FOR</span> Descontinuado</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+              <tr><td><span class="blank"></span></td><td></td></tr>
+              <tr><td><span class="cm">-- CHECK: precio no puede ser negativo</span></td><td></td></tr>
+              <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> CK_Articulo_PrecioProveedor</td><td></td></tr>
+              <tr><td class="ind">   <span class="kw">CHECK</span>( PrecioProveedor <span class="nm">&gt;= 0</span> )</td><td></td></tr>
+              <tr><td><span class="kw">GO</span></td><td></td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+        <!-- Modelo ER visual QhatuPERU partial -->
+        <div class="gcard fu" style="transition-delay:.75s">
+          <h3 class="ct">🗺️ MODELO ER — BD QhatuPERU</h3>
+          <p class="bt" style="font-size:12px;margin-bottom:12px">Relaciones principales del modelo de datos de QhatuPERU (empresa de comercialización de productos):</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div class="er-box">
+              <div class="er-header">TIENDA</div>
+              <div class="er-pk">🔑 CodTienda (int)</div>
+              <div class="er-row">Direccion (varchar60)</div>
+              <div class="er-row">Distrito (varchar20)</div>
+              <div class="er-row">Telefono (varchar15)</div>
+              <div class="er-row">Fax (varchar15)</div>
+            </div>
+            <div class="er-box">
+              <div class="er-header">LINEA</div>
+              <div class="er-pk">🔑 CodLinea (int IDENTITY)</div>
+              <div class="er-row">NomLinea (varchar20)</div>
+              <div class="er-row">Descripcion (varchar40)</div>
+            </div>
+            <div class="er-box">
+              <div class="er-header">ARTICULO</div>
+              <div class="er-pk">🔑 CodArticulo (int IDENTITY)</div>
+              <div class="er-row er-fk">🔗 CodLinea (int)</div>
+              <div class="er-row er-fk">🔗 CodProveedor (int)</div>
+              <div class="er-row">DescripcionArticulo (varchar40)</div>
+              <div class="er-row">PrecioProveedor (money)</div>
+              <div class="er-row">StockActual (smallint)</div>
+              <div class="er-row">Descontinuado (bit)</div>
+            </div>
+            <div class="er-box">
+              <div class="er-header">TRANSPORTISTA</div>
+              <div class="er-pk">🔑 CodTransportista (int)</div>
+              <div class="er-row">NomTransportista (varchar30)</div>
+              <div class="er-row">Direccion (varchar60)</div>
+              <div class="er-row">Telefono (varchar15)</div>
+            </div>
+            <div class="er-box">
+              <div class="er-header">PROVEEDOR</div>
+              <div class="er-pk">🔑 CodProveedor (int IDENTITY)</div>
+              <div class="er-row">NomProveedor (varchar40)</div>
+              <div class="er-row">Representante (varchar30)</div>
+              <div class="er-row">Ciudad (varchar15)</div>
+              <div class="er-row">Telefono (varchar15)</div>
+            </div>
+            <div class="er-box">
+              <div class="er-header">ORDEN_DETALLE</div>
+              <div class="er-pk">🔑 NumOrden + CodArticulo</div>
+              <div class="er-row">PrecioCompra (money)</div>
+              <div class="er-row">CantidadSolicitada (smallint)</div>
+              <div class="er-row">CantidadRecibida (smallint)</div>
+              <div class="er-row">Estado (varchar10)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 7 ACTIVIDADES ══ -->
+<section id="s7">
+  <div class="sn">07</div>
+  <div style="max-width:1100px;width:100%">
+    <div class="lbl fu">// BOSS LEVEL · ACTIVIDADES</div>
+    <h2 class="st fu" style="transition-delay:.1s">EJERCICIO PROPUESTO<br>BD QHATUPERU COMPLETA</h2>
+    <p class="bt fu" style="transition-delay:.2s;max-width:700px;margin-top:8px">Con las especificaciones del punto 3.1, crear la BD QhatuPERU y todas sus tablas con sus relaciones, restricciones y claves. Primero se elimina la BD existente.</p>
+
+    <!-- PASO 0: Eliminar BD anterior -->
+    <div class="act-wrap fu" style="transition-delay:.3s;margin-top:20px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--n1);font-weight:700;margin-bottom:12px">◈ PASO 0 — ELIMINAR BD EXISTENTE</div>
+      <div class="sql-wrap">
+        <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · DROP & CREATE</span></div>
+        <div class="sql"><table><tbody>
+          <tr><td><span class="cm">-- Eliminar la BD existente</span></td><td></td></tr>
+          <tr><td><span class="kw">USE</span> master</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+          <tr><td><span class="kw">DROP DATABASE</span> QhatuPERU</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+          <tr><td><span class="cm">-- Crear la BD QhatuPERU</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE DATABASE</span> QhatuPERU</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PASO 1: Crear todas las tablas -->
+    <div class="act-wrap fu" style="transition-delay:.4s;margin-top:14px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--n3);font-weight:700;margin-bottom:12px">◈ PASO 1 — CREAR TODAS LAS TABLAS</div>
+
+      <div class="sql-wrap">
+        <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · TODAS LAS TABLAS QhatuPERU</span></div>
+        <div class="sql"><table><tbody>
+          <tr><td><span class="kw">USE</span> QhatuPERU</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: TIENDA</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> TIENDA (</td><td></td></tr>
+          <tr><td class="ind">   CodTienda</td><td>  <span class="tp">int</span>         <span class="kw">NOT NULL</span> ,</td></tr>
+          <tr><td class="ind">   Direccion</td><td>  <span class="tp">varchar(60)</span> <span class="kw">NULL</span>     ,</td></tr>
+          <tr><td class="ind">   Distrito</td><td>   <span class="tp">varchar(20)</span> <span class="kw">NULL</span>     ,</td></tr>
+          <tr><td class="ind">   Telefono</td><td>   <span class="tp">varchar(15)</span> <span class="kw">NULL</span>     ,</td></tr>
+          <tr><td class="ind">   Fax</td><td>        <span class="tp">varchar(15)</span> <span class="kw">NULL</span>      )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: LINEA</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> LINEA (</td><td></td></tr>
+          <tr><td class="ind">   CodLinea</td><td>    <span class="tp">int</span> <span class="fn">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="kw">PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   NomLinea</td><td>    <span class="tp">varchar(20)</span> <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   Descripcion</td><td> <span class="tp">varchar(40)</span> <span class="kw">NULL</span>                )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: PROVEEDOR</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> PROVEEDOR (</td><td></td></tr>
+          <tr><td class="ind">   CodProveedor</td><td>   <span class="tp">int</span> <span class="fn">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="kw">PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   NomProveedor</td><td>   <span class="tp">varchar(40)</span> <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   Representante</td><td> <span class="tp">varchar(30)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Direccion</td><td>     <span class="tp">varchar(60)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Ciudad</td><td>        <span class="tp">varchar(15)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Departamento</td><td>  <span class="tp">varchar(15)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   CodiGOPostal</td><td>  <span class="tp">varchar(15)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Telefono</td><td>      <span class="tp">varchar(15)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Fax</td><td>           <span class="tp">varchar(15)</span> <span class="kw">NULL</span>                )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: ARTICULO</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> ARTICULO (</td><td></td></tr>
+          <tr><td class="ind">   CodArticulo</td><td>         <span class="tp">int</span> <span class="fn">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="kw">PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   CodLinea</td><td>            <span class="tp">int</span>           <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   CodProveedor</td><td>        <span class="tp">int</span>           <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   DescripcionArticulo</td><td> <span class="tp">varchar(40)</span>   <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   Presentacion</td><td>        <span class="tp">varchar(30)</span>   <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   PrecioProveedor</td><td>     <span class="tp">money</span>         <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   StockActual</td><td>         <span class="tp">smallint</span>      <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   StockMinimo</td><td>         <span class="tp">smallint</span>      <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   Descontinuado</td><td>       <span class="tp">bit</span>                                )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: TRANSPORTISTA</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> TRANSPORTISTA (</td><td></td></tr>
+          <tr><td class="ind">   CodTransportista</td><td>   <span class="tp">int</span>         <span class="kw">NOT NULL PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   NomTransportista</td><td>   <span class="tp">varchar(30)</span> <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   Direccion</td><td>          <span class="tp">varchar(60)</span> <span class="kw">NULL</span>               ,</td></tr>
+          <tr><td class="ind">   Telefono</td><td>           <span class="tp">varchar(15)</span> <span class="kw">NULL</span>                )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: ORDEN_COMPRA</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> ORDEN_COMPRA (</td><td></td></tr>
+          <tr><td class="ind">   NumOrden</td><td>     <span class="tp">int</span>      <span class="kw">NOT NULL PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   FechaOrden</td><td>   <span class="tp">datetime</span> <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   FechaIngreso</td><td> <span class="tp">datetime</span> <span class="kw">NULL</span>                )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: ORDEN_DETALLE</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> ORDEN_DETALLE (</td><td></td></tr>
+          <tr><td class="ind">   NumOrden</td><td>          <span class="tp">int</span>         <span class="kw">NOT NULL</span>  ,</td></tr>
+          <tr><td class="ind">   CodArticulo</td><td>       <span class="tp">int</span>         <span class="kw">NOT NULL</span>  ,</td></tr>
+          <tr><td class="ind">   PrecioCompra</td><td>      <span class="tp">money</span>       <span class="kw">NOT NULL</span>  ,</td></tr>
+          <tr><td class="ind">   CantidadSolicitada</td><td> <span class="tp">smallint</span>   <span class="kw">NOT NULL</span>  ,</td></tr>
+          <tr><td class="ind">   CantidadRecibida</td><td>  <span class="tp">smallint</span>   <span class="kw">NULL</span>      ,</td></tr>
+          <tr><td class="ind">   Estado</td><td>            <span class="tp">varchar(10)</span> <span class="kw">NULL</span>       )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: GUIA_ENVIO</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> GUIA_ENVIO (</td><td></td></tr>
+          <tr><td class="ind">   NumGuia</td><td>          <span class="tp">int</span>         <span class="kw">NOT NULL PRIMARY KEY</span> ,</td></tr>
+          <tr><td class="ind">   CodTienda</td><td>        <span class="tp">int</span>         <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   FechaSalida</td><td>      <span class="tp">datetime</span>    <span class="kw">NOT NULL</span>           ,</td></tr>
+          <tr><td class="ind">   CodTransportista</td><td> <span class="tp">int</span>         <span class="kw">NOT NULL</span>            )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="cm">-- TABLA: GUIA_DETALLE</span></td><td></td></tr>
+          <tr><td><span class="cm">-- ═══════════════════════════════</span></td><td></td></tr>
+          <tr><td><span class="kw">CREATE TABLE</span> GUIA_DETALLE (</td><td></td></tr>
+          <tr><td class="ind">   NumGuia</td><td>          <span class="tp">int</span>         <span class="kw">NOT NULL</span> ,</td></tr>
+          <tr><td class="ind">   CodArticulo</span></td><td>  <span class="tp">int</span>         <span class="kw">NOT NULL</span> ,</td></tr>
+          <tr><td class="ind">   PrecioVenta</td><td>      <span class="tp">money</span>       <span class="kw">NOT NULL</span> ,</td></tr>
+          <tr><td class="ind">   CantidadEnviada</td><td>  <span class="tp">smallint</span>    <span class="kw">NOT NULL</span>  )</td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PASO 2: Agregar restricciones -->
+    <div class="act-wrap fu" style="transition-delay:.5s;margin-top:14px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--n5);font-weight:700;margin-bottom:12px">◈ PASO 2 — AGREGAR CLAVES PRIMARIAS, FORÁNEAS Y RESTRICCIONES</div>
+      <div class="sql-wrap">
+        <div class="sql-hdr"><div class="sdot" style="background:#ff5f57"></div><div class="sdot" style="background:#febc2e"></div><div class="sdot" style="background:#28c840"></div><span class="slbl">T-SQL · CONSTRAINTS COMPLETAS</span></div>
+        <div class="sql"><table><tbody>
+          <tr><td><span class="kw">USE</span> QhatuPERU</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- PK TIENDA</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> TIENDA</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> PK_TIENDA</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">PRIMARY KEY</span>( CodTienda )</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- PK ORDEN_DETALLE (clave compuesta)</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ORDEN_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> PK_ORDEN_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">PRIMARY KEY</span>( NumOrden, CodArticulo )</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- UNIQUE: nombre de línea no duplicado</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> LINEA</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> U_Linea_NomLinea</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">UNIQUE</span>( NomLinea )</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- DEFAULT: Descontinuado = 0</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> DF_Articulo_Descontinuado</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">DEFAULT</span> <span class="nm">0</span> <span class="kw">FOR</span> Descontinuado</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- CHECK: PrecioProveedor >= 0</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> CK_Articulo_PrecioProveedor</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">CHECK</span>( PrecioProveedor <span class="nm">&gt;= 0</span> )</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK ARTICULO → LINEA (con CASCADE)</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_Articulo_Linea</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodLinea )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> LINEA</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ON DELETE</span> <span class="nm">CASCADE</span></td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK ARTICULO → PROVEEDOR</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ARTICULO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_Articulo_Proveedor</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodProveedor )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> PROVEEDOR</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK ORDEN_DETALLE → ORDEN_COMPRA</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ORDEN_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_OrdDet_Orden</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( NumOrden )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> ORDEN_COMPRA</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK ORDEN_DETALLE → ARTICULO</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> ORDEN_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_OrdDet_Articulo</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodArticulo )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> ARTICULO</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK GUIA_ENVIO → TIENDA</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> GUIA_ENVIO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_GuiaEnvio_Tienda</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodTienda )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> TIENDA</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK GUIA_ENVIO → TRANSPORTISTA</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> GUIA_ENVIO</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_GuiaEnvio_Transportista</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodTransportista )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> TRANSPORTISTA</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK GUIA_DETALLE → GUIA_ENVIO</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> GUIA_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_GuiaDet_Guia</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( NumGuia )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> GUIA_ENVIO</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- FK GUIA_DETALLE → ARTICULO</span></td><td></td></tr>
+          <tr><td><span class="kw">ALTER TABLE</span> GUIA_DETALLE</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">ADD CONSTRAINT</span> FK_GuiaDet_Articulo</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">FOREIGN KEY</span>( CodArticulo )</td><td></td></tr>
+          <tr><td class="ind">   <span class="kw">REFERENCES</span> ARTICULO</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+          <tr><td><span class="blank"></span></td><td></td></tr>
+
+          <tr><td><span class="cm">-- Verificar todas las tablas creadas</span></td><td></td></tr>
+          <tr><td><span class="kw">SELECT</span> name <span class="kw">FROM</span> sys.tables</td><td></td></tr>
+          <tr><td><span class="kw">ORDER BY</span> name</td><td></td></tr>
+          <tr><td><span class="kw">GO</span></td><td></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Modelo ER completo -->
+    <div class="act-wrap fu" style="transition-delay:.6s;margin-top:14px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--n4);font-weight:700;margin-bottom:12px">◈ MODELO RELACIONAL COMPLETO — BD QhatuPERU</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(212,84,122,.15)">TIENDA</div>
+          <div class="er-pk">🔑 CodTienda int</div>
+          <div class="er-row">Direccion varchar(60)</div>
+          <div class="er-row">Distrito varchar(20)</div>
+          <div class="er-row">Telefono varchar(15)</div>
+          <div class="er-row">Fax varchar(15)</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(46,196,160,.15)">LINEA</div>
+          <div class="er-pk">🔑 CodLinea int IDENTITY</div>
+          <div class="er-row">NomLinea varchar(20)</div>
+          <div class="er-row">Descripcion varchar(40)</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(108,99,212,.15)">PROVEEDOR</div>
+          <div class="er-pk">🔑 CodProveedor int IDENTITY</div>
+          <div class="er-row">NomProveedor varchar(40)</div>
+          <div class="er-row">Representante varchar(30)</div>
+          <div class="er-row">Direccion varchar(60)</div>
+          <div class="er-row">Ciudad varchar(15)</div>
+          <div class="er-row">Telefono varchar(15)</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(245,158,58,.15)">TRANSPORTISTA</div>
+          <div class="er-pk">🔑 CodTransportista int</div>
+          <div class="er-row">NomTransportista varchar(30)</div>
+          <div class="er-row">Direccion varchar(60)</div>
+          <div class="er-row">Telefono varchar(15)</div>
+        </div>
+        <div class="er-box" style="grid-column:span 2">
+          <div class="er-header" style="background:rgba(212,84,122,.15)">ARTICULO</div>
+          <div class="er-pk">🔑 CodArticulo int IDENTITY</div>
+          <div class="er-row er-fk">🔗 CodLinea → LINEA</div>
+          <div class="er-row er-fk">🔗 CodProveedor → PROVEEDOR</div>
+          <div class="er-row">DescripcionArticulo varchar(40) NOT NULL</div>
+          <div class="er-row">Presentacion varchar(30)</div>
+          <div class="er-row">PrecioProveedor money NOT NULL [≥ 0]</div>
+          <div class="er-row">StockActual smallint · StockMinimo smallint</div>
+          <div class="er-row">Descontinuado bit [DEFAULT 0]</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(46,196,160,.15)">ORDEN_COMPRA</div>
+          <div class="er-pk">🔑 NumOrden int</div>
+          <div class="er-row">FechaOrden datetime</div>
+          <div class="er-row">FechaIngreso datetime</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(108,99,212,.15)">ORDEN_DETALLE</div>
+          <div class="er-pk">🔑 NumOrden + CodArticulo</div>
+          <div class="er-row er-fk">🔗 NumOrden → ORDEN_COMPRA</div>
+          <div class="er-row er-fk">🔗 CodArticulo → ARTICULO</div>
+          <div class="er-row">PrecioCompra money</div>
+          <div class="er-row">CantidadSolicitada smallint</div>
+          <div class="er-row">CantidadRecibida smallint</div>
+          <div class="er-row">Estado varchar(10)</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(245,158,58,.15)">GUIA_ENVIO</div>
+          <div class="er-pk">🔑 NumGuia int</div>
+          <div class="er-row er-fk">🔗 CodTienda → TIENDA</div>
+          <div class="er-row er-fk">🔗 CodTransportista → TRANSPORTISTA</div>
+          <div class="er-row">FechaSalida datetime</div>
+        </div>
+        <div class="er-box">
+          <div class="er-header" style="background:rgba(212,84,122,.15)">GUIA_DETALLE</div>
+          <div class="er-pk">🔑 NumGuia + CodArticulo</div>
+          <div class="er-row er-fk">🔗 NumGuia → GUIA_ENVIO</div>
+          <div class="er-row er-fk">🔗 CodArticulo → ARTICULO</div>
+          <div class="er-row">PrecioVenta money</div>
+          <div class="er-row">CantidadEnviada smallint</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leyenda del modelo -->
+    <div class="gcard fu" style="transition-delay:.7s;margin-top:14px">
+      <h3 class="ct">📌 CONVENCIONES DEL MODELO</h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">🔑</span><span class="bt" style="font-size:12px"><strong>PK</strong> — Clave primaria</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="er-fk" style="font-size:14px">🔗</span><span class="bt" style="font-size:12px"><strong style="color:var(--n5)">FK</strong> — Clave foránea (referencia)</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--n3)">IDENTITY</span><span class="bt" style="font-size:12px">— Valor autogenerado</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--n4)">[≥ 0]</span><span class="bt" style="font-size:12px">— Restricción CHECK</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--n1)">[DEFAULT 0]</span><span class="bt" style="font-size:12px">— Restricción DEFAULT</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 8 FINAL ══ -->
+<section id="s8">
+  <div class="final">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--n1);letter-spacing:.3em;margin-bottom:14px">◈ SEMANA 07 COMPLETADA ◈</div>
+    <h2 class="fu" style="transition-delay:.1s">MISIÓN<br><span>COMPLETADA</span></h2>
+    <p class="fu" style="transition-delay:.2s;font-size:14px;color:var(--text2);line-height:1.8;margin-top:12px">Has dominado tablas, tipos de datos, CREATE y ALTER TABLE, integridad de datos y las 5 restricciones de SQL Server 2022, incluyendo la creación completa de la BD QhatuPERU.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px" class="fu" style="transition-delay:.3s">
+      <div class="stat-box"><div class="stat-val">📋</div><div class="stat-lbl">TABLAS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n3)">🔢</div><div class="stat-lbl">TIPOS DATO</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n5)">⚙️</div><div class="stat-lbl">CONSTRAINTS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--n4)">✅</div><div class="stat-lbl">BD COMPLETA</div></div>
+    </div>
+    <div class="cbox fu" style="transition-delay:.4s;margin-top:22px">
+      <p><strong>Estudiante:</strong> Alexandra Milagros Cuchula Daniel</p>
+      <div class="cdiv"></div>
+      <p><strong>Docente:</strong> Ing. Raúl Fernández Bejarano</p>
+      <div class="cdiv"></div>
+      <p style="font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--n1)">SQL SERVER 2022 · CAP. III · SEM. 07 · UPLA · 2026</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+// STARS
+const canvas=document.getElementById('stars');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const stars=Array.from({length:110},()=>({
+  x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+  r:Math.random()*1.3+.3,a:Math.random(),da:Math.random()*.006-.003
+}));
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.a+=s.da;if(s.a<0||s.a>1)s.da*=-1;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(212,84,122,${s.a*0.3})`;ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
+
+// CURSOR ARMY
+const cur=document.getElementById('cur'),crng=document.getElementById('crng');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx-14+'px';cur.style.top=my-18+'px';
+});
+(function ar(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;crng.style.left=rx-18+'px';crng.style.top=ry-18+'px';requestAnimationFrame(ar);})();
+document.querySelectorAll('.gcard,.icard,.cst-card,.fbox,.aitem,.nd,.stat-box,.er-box').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur.style.transform='scale(1.3)';
+    cur.querySelectorAll('polygon').forEach(p=>p.setAttribute('fill','#2ec4a0'));
+    cur.style.filter='drop-shadow(0 0 6px rgba(46,196,160,.8))';
+    crng.style.borderColor='var(--n3)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    cur.style.transform='scale(1)';
+    cur.querySelectorAll('polygon').forEach(p=>p.setAttribute('fill','#d4547a'));
+    cur.style.filter='drop-shadow(0 0 5px rgba(212,84,122,.7))';
+    crng.style.borderColor='rgba(212,84,122,.4)';
+  });
+});
+
+// SLIDES
+const slides=document.querySelectorAll('section');
+const nd=document.getElementById('nd');
+const pf=document.getElementById('pf');
+const labels=['INICIO','MAPA','TABLAS','TIPOS DATO','CREATE TABLE','INTEGRIDAD','CONSTRAINTS','ACTIVIDADES','FINAL'];
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='nd'+(i===0?' active':'');
+  d.title=labels[i]||'';
+  d.onclick=()=>go(i);
+  nd.appendChild(d);
+});
+function go(i){slides[i].scrollIntoView({behavior:'smooth'});}
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const idx=[...slides].indexOf(e.target);
+      document.querySelectorAll('.nd').forEach((d,i)=>d.classList.toggle('active',i===idx));
+      pf.style.width=(idx/(slides.length-1)*100)+'%';
+      e.target.classList.add('vis');
+      e.target.querySelectorAll('.fu,.fr').forEach(el=>setTimeout(()=>el.classList.add('show'),80));
+    }
+  });
+},{threshold:.18});
+slides.forEach(s=>obs.observe(s));
+document.addEventListener('keydown',e=>{
+  const a=[...document.querySelectorAll('.nd')].findIndex(d=>d.classList.contains('active'));
+  if(e.key==='ArrowDown'||e.key==='ArrowRight') go(Math.min(a+1,slides.length-1));
+  if(e.key==='ArrowUp'||e.key==='ArrowLeft') go(Math.max(a-1,0));
+});
+</script>
+</body>
+</html>
